@@ -1,5 +1,6 @@
 import { GraphQLError } from "graphql/error";
 
+import { accessRequired } from "../errors";
 import { log } from "../../../lib";
 import { Message, r, cacheableData } from "../../models";
 import serviceMap from "../lib/services";
@@ -18,6 +19,10 @@ export const sendMessage = async (
 ) => {
   let contact = await loaders.campaignContact.load(campaignContactId);
   const campaign = await loaders.campaign.load(contact.campaign_id);
+
+  /* Suspension of account PR addition */
+  // await accessRequired(user, campaign.organization_id, "TEXTER");
+
   if (
     contact.assignment_id !== parseInt(message.assignmentId) ||
     campaign.is_archived

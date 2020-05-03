@@ -203,6 +203,7 @@ const rootSchema = gql`
 
   type RootQuery {
     currentUser: User
+    currentUserWithAccess(organizationId: String!, role: String!): User
     organization(id: String!, utc: String): Organization
     campaign(id: String!): Campaign
     inviteByHash(hash: String!): [Invite]
@@ -297,6 +298,7 @@ const rootSchema = gql`
     unarchiveCampaign(id: String!): Campaign
     sendReply(id: String!, message: String!): CampaignContact
     getAssignmentContacts(
+      organizationId: String!
       assignmentId: String!
       contactIds: [String]
       findNew: Boolean

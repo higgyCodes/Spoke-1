@@ -186,7 +186,16 @@ export class AssignmentTexterContact extends React.Component {
       }
       this.setState({ disabled: true });
       console.log("sendMessage", contact.id);
-      await this.props.mutations.sendMessage(message, contact.id);
+      // Adds send message error state
+      // const sendMessageResult = await this.props.mutations.sendMessage(
+      //   message,
+      //   contact.id
+      // );
+      // if (sendMessageResult.errors && this.props.campaign.organization.id) {
+      //   this.props.router.push(
+      //     `/app/${this.props.campaign.organization.id}/suspended`
+      //   );
+      // }
 
       await this.handleSubmitSurveys();
       this.props.onFinishContact(contact.id);
@@ -279,7 +288,16 @@ export class AssignmentTexterContact extends React.Component {
     this.setState({ disabled: true });
     try {
       if (optOutMessageText.length) {
-        await this.props.mutations.sendMessage(message, contact.id);
+        /* Moved to add suspended state */
+        const sendMessageResult = await this.props.mutations.sendMessage(
+          message,
+          contact.id
+        );
+        if (sendMessageResult.errors && this.props.campaign.organization.id) {
+          this.props.router.push(
+            `/app/${this.props.campaign.organization.id}/suspended`
+          );
+        }
       }
 
       const optOut = {

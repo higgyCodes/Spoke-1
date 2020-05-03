@@ -5,8 +5,10 @@ import LoadingIndicator from "./LoadingIndicator";
 import { StyleSheet, css } from "aphrodite";
 import { withRouter } from "react-router";
 import Check from "material-ui/svg-icons/action/check-circle";
+import Lock from "material-ui/svg-icons/action/lock-outline";
 import Empty from "../components/Empty";
 import RaisedButton from "material-ui/RaisedButton";
+import { get } from "lodash";
 
 const styles = StyleSheet.create({
   container: {
@@ -170,6 +172,10 @@ export class AssignmentTexter extends React.Component {
       // console.log('getContactData length', newIndex, getIds.length)
       this.setState({ loading: true });
       const contactData = await this.props.loadContacts(getIds);
+      /* Added with suspended changes */
+      // if (contactData.errors && this.props.organizationId) {
+      //   this.props.router.push(`/app/${this.props.organizationId}/suspended`);
+      // }
       const {
         data: { getAssignmentContacts }
       } = contactData;

@@ -41,8 +41,12 @@ import {
 } from "./conversations";
 import {
   accessRequired,
-  assignmentRequiredOrAdminRole,
   assignmentRequired,
+  /*
+  Addition for suspension.
+  assignmentAndNotSuspended,
+  */
+  assignmentRequiredOrAdminRole,
   authRequired
 } from "./errors";
 import { resolvers as interactionStepResolvers } from "./interaction-step";
@@ -57,6 +61,7 @@ import { resolvers as questionResolvers } from "./question";
 import { resolvers as questionResponseResolvers } from "./question-response";
 import { getUsers, resolvers as userResolvers } from "./user";
 import { change } from "../local-auth-helpers";
+import { flatten, get } from "lodash";
 
 import {
   sendMessage,
@@ -924,7 +929,7 @@ const rootMutations = {
     },
     getAssignmentContacts: async (
       _,
-      { assignmentId, contactIds, findNew },
+      { organizationId, assignmentId, contactIds, findNew },
       { loaders, user }
     ) => {
       if (contactIds.length === 0) {
@@ -934,6 +939,7 @@ const rootMutations = {
         contactIds[0]
       );
       const campaign = await loaders.campaign.load(firstContact.campaign_id);
+      /* Adds suspension logic here assignmentAndNotSuspended */
       await assignmentRequiredOrAdminRole(
         user,
         campaign.organization_id,
@@ -1243,7 +1249,7 @@ const rootResolvers = {
         await accessRequired(
           user,
           campaign.organization_id,
-          "TEXTER",
+          "SUSPENDED",
           /* allowSuperadmin=*/ true
         );
       } else {
@@ -1257,13 +1263,17 @@ const rootResolvers = {
       return assignment;
     },
     organization: async (_, { id }, { user, loaders }) => {
-      await accessRequired(user, id, "TEXTER");
+      await accessRequired(user, id, "SUSPENDED");
       return await loaders.organization.load(id);
     },
     inviteByHash: async (_, { hash }, { loaders, user }) => {
       authRequired(user);
       return r.table("invite").filter({ hash });
     },
+    /* Can query 
+    currentUser { roles(organizationId:$orgId) }
+    instead of adding currentUserWithAccess
+    */
     currentUser: async (_, { id }, { user }) => {
       if (!user) {
         return null;
@@ -1275,7 +1285,7 @@ const rootResolvers = {
       if (user.is_superadmin) {
         return r.table("organization");
       } else {
-        return await cacheableData.user.userOrgs(user.id, "TEXTER");
+        return await cacheableData.user.userOrgs(user.id, "SUSPENDED");
       }
     },
     availableActions: (_, { organizationId }, { user }) => {
