@@ -1,11 +1,12 @@
 import { GraphQLError } from "graphql/error";
 import { r, cacheableData } from "../models";
+import { ErrorMessages, SUSPENDED_USER_ROLE } from "../../lib";
 
 export function authRequired(user) {
   if (!user) {
     throw new GraphQLError({
       status: 401,
-      message: "You must login to access that resource."
+      message: ErrorMessages.LOGIN_ERROR
     });
   }
 }
@@ -23,10 +24,19 @@ export async function accessRequired(
   if (allowSuperadmin && user.is_superadmin) {
     return;
   }
+
+  const isSuspended = await cacheableData.user.userHasRole(
+    user,
+    orgId,
+    SUSPENDED_USER_ROLE
+  );
+  if (isSuspended) {
+    throw new GraphQLError(ErrorMessages.SUSPENSION_ERROR);
+  }
   // require a permission at-or-higher than the permission requested
   const hasRole = await cacheableData.user.userHasRole(user, orgId, role);
   if (!hasRole) {
-    throw new GraphQLError("You are not authorized to access that resource.");
+    throw new GraphQLError(ErrorMessages.AUTHORIZATION_ERROR);
   }
 }
 
@@ -81,7 +91,7 @@ export async function assignmentRequired(
   // );
   if (!userHasAssignment) {
     // undefined or null
-    throw new GraphQLError("You are not authorized to access that resource.");
+    throw new GraphQLError(ErrorMessages.AUTHORIZATION_ERROR);
   }
   return userHasAssignment;
 }
@@ -124,6 +134,6 @@ export function superAdminRequired(user) {
   authRequired(user);
 
   if (!user.is_superadmin) {
-    throw new GraphQLError("You are not authorized to access that resource.");
+    throw new GraphQLError(ErrorMessages.AUTHORIZATION_ERROR);
   }
 }

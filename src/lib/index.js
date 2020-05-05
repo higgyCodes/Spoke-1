@@ -35,10 +35,13 @@ export {
 
 export {
   ROLE_HIERARCHY,
+  SUSPENDED_USER_ROLE,
   getHighestRole,
   hasRole,
   isRoleGreater
 } from "./permissions";
+
+export { ErrorMessages, errorsContainUserSuspension } from "./error-messages";
 
 export { gzip, gunzip } from "./gzip";
 export {

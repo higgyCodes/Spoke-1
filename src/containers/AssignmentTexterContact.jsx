@@ -186,6 +186,7 @@ export class AssignmentTexterContact extends React.Component {
       }
       this.setState({ disabled: true });
       console.log("sendMessage", contact.id);
+      await this.props.mutations.sendMessage(message.contact.id);
       // Adds send message error state
       // const sendMessageResult = await this.props.mutations.sendMessage(
       //   message,

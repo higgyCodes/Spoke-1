@@ -1,6 +1,6 @@
 import DataLoader from "dataloader";
 import { r, loaders } from "../../models";
-import { ROLE_HEIRARCHY, isRoleGreater } from "../../../lib/permissions";
+import { ROLE_HIERARCHY, isRoleGreater } from "../../../lib/permissions";
 
 /*
 KEY: texterauth-${authId}
@@ -126,8 +126,8 @@ const dbLoadUserAuth = async (field, val) => {
 
 const userOrgs = async (userId, role) => {
   const acceptableRoles = role
-    ? ROLE_HEIRARCHY.slice(ROLE_HEIRARCHY.indexOf(role))
-    : [...ROLE_HEIRARCHY];
+    ? ROLE_HIERARCHY.slice(ROLE_HIERARCHY.indexOf(role))
+    : [...ROLE_HIERARCHY];
   const orgRoles = await loadUserRoles(userId);
   const matchedOrgs = Object.keys(orgRoles).filter(
     orgId => acceptableRoles.indexOf(orgRoles[orgId].role) !== -1
@@ -138,9 +138,9 @@ const userOrgs = async (userId, role) => {
 const orgRoles = async (userId, orgId) => {
   const orgRolesDict = await loadUserRoles(userId);
   if (orgId in orgRolesDict) {
-    return ROLE_HEIRARCHY.slice(
+    return ROLE_HIERARCHY.slice(
       0,
-      1 + ROLE_HEIRARCHY.indexOf(orgRolesDict[orgId].role)
+      1 + ROLE_HIERARCHY.indexOf(orgRolesDict[orgId].role)
     );
   }
   return [];
@@ -170,7 +170,7 @@ const userOrgHighestRole = async (userId, orgId) => {
       highestRole = roles
         .map(ri => ri.role)
         .sort(
-          (a, b) => ROLE_HEIRARCHY.indexOf(b) - ROLE_HEIRARCHY.indexOf(a)
+          (a, b) => ROLE_HIERARCHY.indexOf(b) - ROLE_HIERARCHY.indexOf(a)
         )[0];
     }
   }
@@ -178,7 +178,7 @@ const userOrgHighestRole = async (userId, orgId) => {
 };
 
 const userHasRole = async (user, orgId, role) => {
-  const acceptableRoles = ROLE_HEIRARCHY.slice(ROLE_HEIRARCHY.indexOf(role));
+  const acceptableRoles = ROLE_HIERARCHY.slice(ROLE_HIERARCHY.indexOf(role));
   let highestRole = "";
   if (user.orgRoleCache) {
     highestRole = await user.orgRoleCache.load(`${user.id}:${orgId}`);
